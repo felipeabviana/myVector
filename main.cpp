@@ -5,10 +5,19 @@
 using namespace std;
 
 int main(){
-    vector<int> A {1, 2, 3};
-    myVector T;
+    vector<int> A;
+    myVector<int> B;
 
-    cout << "\nTest:\n" << A[0] << "\n" << T.a << "\n";
+    for(auto i=0;i<25;i++){
+        A.push_back(i);
+        B.push_back(i);
+    }
+
+    for(auto i=0;i<25;i++){
+        cout << A[i] << "\n";
+    }
+
+    B.print();
 
     return 0;
 }
