@@ -14,21 +14,29 @@ private:
 public:
     //Constructors
     myVector();
-    //myVector(const myVector& x);
+    myVector(const myVector& x);
     //myVector(int n, const T& val);
     ~myVector();
 
+    //Operator =
+    //copy
+    myVector& operator=(const myVector& x);
+    //move
+    myVector& operator=(myVector&& x);
+    //initializer list
+    //myVector& operator=(initializer_list list);
+
     //Element access
     T& operator[](int idx);
-    const T& operator[](int idx) const;
     T& at(int idx);
-    const T& at(int idx) const;
+    T& front();
+    T& back();
+    T* data();
 
     //Modifiers
     void push_back(const T& val);
 
     //DEBUG
-    void print();
 };
 
 //################################
@@ -48,22 +56,50 @@ myVector<T>::~myVector(){
     delete elem;
 }
 
-/*myVector::myVector(const myVector& x){
-
+template <typename T>
+myVector<T>::myVector(const myVector& x){
+    size = x.size;
+    cap = x.cap;
+    elem = new T[cap];
+    for(auto i=0;i<size;i++){
+        elem[i] = x.elem[i];
+    }
 }
 
-myVector::myVector(int n, const T& val){
+/*myVector::myVector(int n, const T& val){
 
 }*/ 
+
+//Operator =
+//Copy
+template <typename T>
+myVector<T>& myVector<T>::operator=(const myVector<T>& x){
+    size = x.size;
+    cap = x.cap;
+    delete elem;
+    elem = new T[cap];
+    for(auto i=0;i<size;i++){
+        elem[i] = x.elem[i];
+    }
+    return *this;
+}
+//move
+template <typename T>
+myVector<T>& myVector<T>::operator=(myVector&& x){
+    size = x.size;
+    cap = x.cap;
+    delete elem;
+    elem = x.elem;
+    x.elem = nullptr;
+    x.size = 0;
+    x.cap = 0;
+    return *this;
+}
+//initializer list
 
 // Element access
 template <typename T>
 T& myVector<T>::operator[](int idx){
-    return elem[idx];
-}
-
-template <typename T>
-const T& myVector<T>::operator[](int idx) const {
     return elem[idx];
 }
 
@@ -73,8 +109,18 @@ T& myVector<T>::at(int idx){
 }
 
 template<typename T>
-const T& myVector<T>::at(int idx) const {
-    return elem[idx];
+T& myVector<T>::front(){
+    return elem[0];
+}
+
+template<typename T>
+T& myVector<T>::back(){
+    return elem[size-1];
+}
+
+template<typename T>
+T* myVector<T>::data(){
+    return elem;
 }
 
 // Modifiers
@@ -93,11 +139,3 @@ void myVector<T>::push_back(const T& val){
     elem[size] = val;
     size++;
 }
-
-// DEBUG
-template <typename T>
-void myVector<T>::print(){
-        for(auto i=0;i<size;i++){
-            std::cout << elem[i] << "\n";
-        }
-    }
