@@ -4,6 +4,14 @@
 
 using namespace std;
 
+template <typename T>
+void printVector(myVector<T>& toPrint){
+    for(auto i=0;i<toPrint.size();i++){
+        cout << toPrint[i] << " ";
+    }
+    cout << "\n";
+}
+
 int main(){
     vector<int> A;
     myVector<int> B;
@@ -24,24 +32,30 @@ int main(){
     A.front() = 111;
     B.back() = 111;
 
-    for(auto i=0;i<25;i++){
-        cout << A[i] << " " << B[i] << "\n";
-    }
+    printVector(B);
 
     cout << A.front() << " " << B.front() << "\n";
     cout << A.back() << " " << B.back() << "\n";
 
     C = A.data();
     D = B.data();
-    cout << C[0] << " " << D[0] << "\n";
 
     myVector<int> E;
     E = B;
     myVector<int> F = B;
+    printVector(E);
+    printVector(F);
 
-    for(auto i=0;i<25;i++){
-        cout << E[i] << " " << F[i] << "\n";
-    }
+    myVector<int> G;
+    G = {1,3,4,9};
+    printVector(G);
+
+    myVector<int> H(10,5);
+    printVector(H);
+
+    myVector<int> I {1,2,3};
+    cout << I.size();
+    printVector(I);
 
     return 0;
 }
