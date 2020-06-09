@@ -3,7 +3,9 @@
 #include"myVector.h"
 
 using namespace std;
+using namespace myClasses;
 
+//printDebug Function
 template <typename T>
 void printVector(myVector<T>& toPrint){
     for(auto i=0;i<toPrint.size();i++){
@@ -11,6 +13,17 @@ void printVector(myVector<T>& toPrint){
     }
     cout << "\n";
 }
+template <typename T>
+void printVector(vector<T>& toPrint){
+    for(auto i=0;i<toPrint.size();i++){
+        cout << toPrint[i] << " ";
+    }
+    cout << "\n";
+}
+
+//Todo:
+// compile ASAN, UBSAN, TSAN
+// use inline
 
 int main(){
     vector<int> A;
@@ -32,6 +45,7 @@ int main(){
     A.front() = 111;
     B.back() = 111;
 
+    printVector(A);
     printVector(B);
 
     cout << A.front() << " " << B.front() << "\n";
@@ -54,7 +68,9 @@ int main(){
     printVector(H);
 
     myVector<int> I {1,2,3};
-    cout << I.size();
+    cout << I.size() << "\n";
+    printVector(I);
+    I.pop_back();
     printVector(I);
 
     return 0;
