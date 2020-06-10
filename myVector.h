@@ -2,7 +2,16 @@
 #define MYVECTOR
 
 #include<iostream>
+#include<algorithm>
 #include<initializer_list>
+
+//Todo:
+// compile ASAN, UBSAN, TSAN
+// use inline
+// optimize push_back() calls
+// create const functions
+// create << operator
+// OK assign default value to class members
 
 //#################################
 //######### Declarations ##########
@@ -12,11 +21,41 @@ namespace myClasses{
     class myVector {
     //Private elements
     private:
-        T* elem;
-        int internalSize;
-        int cap;
+        T* elem {nullptr};
+        int internalSize {0};
+        int cap {0};
     //Public interface
     public:
+        //Iterator definition
+        // member typedefs provided through inheriting from std::iterator
+        class iterator: public std::iterator<
+                            std::random_access_iterator_tag,   // iterator_category
+                            T,                              // value_type
+                            long,                              // difference_type
+                            const T*,                       // pointer
+                            T>                              // reference
+        {
+            //iterator member
+            private:
+                long num {0};   //store index of vector
+                T* elemRef {nullptr}; //pointer to myvector elem
+            //iterator functions
+            public:
+                explicit iterator(long _num, T* _elemRef){
+                    num = _num;
+                    elemRef = _elemRef;
+                }
+                iterator& operator++() {num = num + 1; return *this;}
+                iterator operator++(int) {iterator retval = *this; ++(*this); return retval;}
+                bool operator==(iterator other) const {return num == other.num;}
+                bool operator!=(iterator other) const {return !(*this == other);}
+                T operator*() {return elemRef[num];}
+        };
+
+        //Iterators
+        iterator begin() {return iterator(0, elem);}
+        iterator end() {return iterator(internalSize, elem);}
+        
         //Constructors - OK
         myVector();
         myVector(const myVector& x);
@@ -32,9 +71,6 @@ namespace myClasses{
         myVector& operator=(myVector&& x);
         //initializer list
         myVector& operator=(std::initializer_list<T> list);
-
-        //Iterators
-        //std::iterator begin();
 
         //Capacity
         int size();

@@ -21,10 +21,6 @@ void printVector(vector<T>& toPrint){
     cout << "\n";
 }
 
-//Todo:
-// compile ASAN, UBSAN, TSAN
-// use inline
-
 int main(){
     vector<int> A;
     myVector<int> B;
@@ -72,6 +68,10 @@ int main(){
     printVector(I);
     I.pop_back();
     printVector(I);
+
+    for(auto X : A){
+        cout << X << ".";
+    }
 
     return 0;
 }
