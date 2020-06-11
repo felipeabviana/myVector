@@ -72,6 +72,14 @@ int main(){
     for(auto X : A){
         cout << X << ".";
     }
+    cout << "\n";
+
+    try{
+        cout << I.at(6);
+    }
+    catch (const std::out_of_range& oor) {
+        cout << "Out of Range error: " << oor.what() << '\n';
+    }
 
     return 0;
 }

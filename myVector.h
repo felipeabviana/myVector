@@ -4,14 +4,12 @@
 #include<iostream>
 #include<algorithm>
 #include<initializer_list>
+#include<stdexcept>
 
-//Todo:
+// Todo:
 // compile ASAN, UBSAN, TSAN
-// use inline
-// optimize push_back() calls
-// create const functions
-// create << operator
-// OK assign default value to class members
+// create << operator (?)
+// iterator: tirar num usar ponteiro (?)
 
 //#################################
 //######### Declarations ##########
@@ -46,15 +44,19 @@ namespace myClasses{
                     elemRef = _elemRef;
                 }
                 iterator& operator++() {num = num + 1; return *this;}
-                iterator operator++(int) {iterator retval = *this; ++(*this); return retval;}
-                bool operator==(iterator other) const {return num == other.num;}
+                iterator operator++(int) {iterator retval(*this); ++(*this); return retval;}
+                bool operator==(iterator other) const {
+                    return (num == other.num)&&(elemRef==other.elemRef);
+                    }
                 bool operator!=(iterator other) const {return !(*this == other);}
                 T operator*() {return elemRef[num];}
         };
 
         //Iterators
         iterator begin() {return iterator(0, elem);}
+        const iterator begin() const{return iterator(0, elem);}
         iterator end() {return iterator(internalSize, elem);}
+        const iterator end() const{return iterator(internalSize, elem);}
         
         //Constructors - OK
         myVector();
@@ -62,7 +64,7 @@ namespace myClasses{
         myVector(int n, const T& val);
         myVector(std::initializer_list<T> list);
         //Destructor - OK
-        ~myVector();
+        ~myVector(){delete[] elem;}
 
         //Operator = OK
         //copy
@@ -73,14 +75,19 @@ namespace myClasses{
         myVector& operator=(std::initializer_list<T> list);
 
         //Capacity
-        int size();
+        int size()const noexcept{return internalSize;}
 
         //Element access - OK
-        T& operator[](int idx);
+        T& operator[](int idx){return elem[idx];}
+        const T& operator[](int idx) const {return elem[idx];}
         T& at(int idx);
-        T& front();
-        T& back();
-        T* data();
+        const T& at(int idx) const;
+        T& front(){return elem[0];}
+        const T& front() const{return elem[0];}
+        T& back(){return elem[internalSize-1];}
+        const T& back() const{return elem[internalSize-1];}
+        T* data(){return elem;}
+        const T* data() const{return elem;}
 
         //Modifiers
         void push_back(const T& val);
@@ -120,18 +127,14 @@ namespace myClasses{
 
     template <typename T>
     myVector<T>::myVector(std::initializer_list<T> list){
-        internalSize = 0;
-        cap = list.size();
+        internalSize = list.size();
+        cap = internalSize;
         elem = new T[cap];
+        int i=0;
         for(auto x : list){
-            this->push_back(x);
+            elem[i] = x;
+            i++;
         }
-    }
-
-    //Destructor
-    template <typename T>
-    myVector<T>::~myVector(){
-        delete[] elem;
     }
 
     //Operator =
@@ -162,48 +165,35 @@ namespace myClasses{
     //initializer list
     template <typename T>
     myVector<T>& myVector<T>::operator=(std::initializer_list<T> list){
-        internalSize = 0;
+        internalSize = list.size();
+        cap = internalSize;
+        elem = new T[cap];
+        int i=0;
         for(auto x : list){
-            this->push_back(x);
+            elem[i] = x;
+            i++;
         }
     }
 
-    //Iterators
-    /*template <typename T>
-    std::iterator myVector<T>::begin(){
-
-    }*/
-
-    //Capacity
+    //Element access
     template <typename T>
-    int myVector<T>::size(){
-        return internalSize;
-    }
-
-    // Element access
-    template <typename T>
-    T& myVector<T>::operator[](int idx){
-        return elem[idx];
-    }
-
-    template<typename T>
     T& myVector<T>::at(int idx){
-        return elem[idx];
+        if(0 <= idx && idx < internalSize){
+            return elem[idx];
+        }
+        else{
+            throw std::out_of_range("My access error");
+        }
     }
 
-    template<typename T>
-    T& myVector<T>::front(){
-        return elem[0];
-    }
-
-    template<typename T>
-    T& myVector<T>::back(){
-        return elem[internalSize-1];
-    }
-
-    template<typename T>
-    T* myVector<T>::data(){
-        return elem;
+    template <typename T>
+    const T& myVector<T>::at(int idx) const{
+        if(0 <= idx && idx < internalSize){
+            return elem[idx];
+        }
+        else{
+            throw std::out_of_range("My access error");
+        }
     }
 
     // Modifiers
