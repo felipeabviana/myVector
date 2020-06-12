@@ -37,6 +37,7 @@ int main(){
     int* C;
     int* D;
 
+    //Test performing same operation in vector and myvector
     for(auto i=0;i<25;i++){
         A.push_back(i);
         B.push_back(i);
@@ -69,17 +70,31 @@ int main(){
     cout << compareVector(He, H) << "\n";
     cout << compareVector(Ie, I) << "\n";
 
-    /*
-    cout << I.size() << "\n";
-    printVector(I);
     I.pop_back();
-    printVector(I);
+    Ie.pop_back();
+    cout << compareVector(Ie, I) << "\n";
 
-    for(auto X : A){
-        cout << X << ".";
-    }
-    cout << "\n";
+    G.resize(9);
+    Ge.resize(9);
+    cout << compareVector(Ge, G) << "\n";
+    G.resize(2);
+    Ge.resize(2);
+    cout << compareVector(Ge, G) << "\n";
+    G.reserve(128);
+    Ge.reserve(128);
+    if(G.capacity()==Ge.capacity()){cout<<"PASS\n";}
+    else{cout<<"FAIL\n";}
+    G.shrink_to_fit();
+    Ge.shrink_to_fit();
+    if(G.capacity()==Ge.capacity()){cout<<"PASS\n";}
+    else{cout<<"FAIL\n";}
 
+    //Test data access
+    int* Data = I.data();
+    if(Data[1]==2){cout << "PASS\n";}
+    else{cout << "FAIL\n";}
+
+    //Test access out of range
     try{
         cout << I.at(6);
     }
@@ -87,7 +102,17 @@ int main(){
         cout << "Out of Range error: " << oor.what() << '\n';
     }
 
-    cout << I.max_size() << "\n";*/
+    //Test getting myVector info
+    cout << I.max_size() << "\n";
+    myVector<int> Empty;
+    if(Empty.empty()==true){cout << "PASS\n";}
+    else{cout << "FAIL\n";}
+
+    //Test functions
+
+
+    //__shrink_to_fit_aux
+
 
     return 0;
 }

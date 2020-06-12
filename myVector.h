@@ -11,8 +11,6 @@
 // compile ASAN, UBSAN, TSAN
 // create << operator (?)
 // iterator: tirar num usar ponteiro (?)
-// implement test function
-// implement tests
 // implement all iterators functions
 // implement modifiers functions
 
