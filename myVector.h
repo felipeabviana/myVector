@@ -5,11 +5,16 @@
 #include<algorithm>
 #include<initializer_list>
 #include<stdexcept>
+#include<limits>
 
 // Todo:
 // compile ASAN, UBSAN, TSAN
 // create << operator (?)
 // iterator: tirar num usar ponteiro (?)
+// implement test function
+// implement tests
+// implement all iterators functions
+// implement modifiers functions
 
 //#################################
 //######### Declarations ##########
@@ -22,6 +27,7 @@ namespace myClasses{
         T* elem {nullptr};
         int internalSize {0};
         int cap {0};
+        int maxSize {std::numeric_limits<int>::max()};
     //Public interface
     public:
         //Iterator definition
@@ -52,7 +58,7 @@ namespace myClasses{
                 T operator*() {return elemRef[num];}
         };
 
-        //Iterators
+        //Iterators - OK
         iterator begin() {return iterator(0, elem);}
         const iterator begin() const{return iterator(0, elem);}
         iterator end() {return iterator(internalSize, elem);}
@@ -63,10 +69,9 @@ namespace myClasses{
         myVector(const myVector& x);
         myVector(int n, const T& val);
         myVector(std::initializer_list<T> list);
-        //Destructor - OK
+        //Destructor
         ~myVector(){delete[] elem;}
-
-        //Operator = OK
+        //Operator =
         //copy
         myVector& operator=(const myVector& x);
         //move
@@ -74,8 +79,14 @@ namespace myClasses{
         //initializer list
         myVector& operator=(std::initializer_list<T> list);
 
-        //Capacity
+        //Capacity - OK
         int size()const noexcept{return internalSize;}
+        int max_size() const noexcept{return maxSize;}
+        void resize(int n, const T& val = 0);
+        void reserve(int n);
+        int capacity() const noexcept {return cap;}
+        bool empty() const noexcept {return (internalSize == 0);}
+        void shrink_to_fit();
 
         //Element access - OK
         T& operator[](int idx){return elem[idx];}
@@ -175,6 +186,51 @@ namespace myClasses{
         }
     }
 
+    //Capacity
+    template <typename T>
+    void myVector<T>::resize(int n, const T& val){
+        if(n > cap){
+            reserve(n);
+        }
+        if(n > internalSize){
+            for(auto i=internalSize;i<n;i++){
+                elem[i] = val;
+            }
+        }
+        internalSize = n;
+    }
+
+    template <typename T>
+    void myVector<T>::reserve(int n){
+        if(n > maxSize){
+            throw std::overflow_error("Requested memmory larger than max supported");
+        }
+        else if(n > cap){
+            cap = n;
+            T* oldElem = elem;
+            T* newElem = new T[cap];
+            for(auto i=0;i<internalSize;i++){
+                newElem[i] = oldElem[i];
+            }
+            elem = newElem;
+            delete[] oldElem;
+        }
+    }
+
+    template <typename T>
+    void myVector<T>::shrink_to_fit(){
+        if(cap > internalSize){
+            cap = internalSize;
+            T* oldElem = elem;
+            T* newElem = new T[cap];
+            for(auto i=0;i<internalSize;i++){
+                newElem[i] = oldElem[i];
+            }
+            elem = newElem;
+            delete[] oldElem;
+        }
+    }
+
     //Element access
     template <typename T>
     T& myVector<T>::at(int idx){
@@ -199,15 +255,18 @@ namespace myClasses{
     // Modifiers
     template <typename T>
     void myVector<T>::push_back(const T& val){
+        if(internalSize >= maxSize){
+            throw std::overflow_error("Requested memmory larger than max supported");
+        }
         if(internalSize >= cap){
-            cap *= 2;
-            T* oldElem = elem;
-            T* newElem = new T[cap];
-            for(auto i=0;i<internalSize;i++){
-                newElem[i] = oldElem[i];
+            if(2*cap >= maxSize)
+            {
+                reserve(maxSize);
             }
-            elem = newElem;
-            delete[] oldElem;
+            else
+            {
+                reserve(2*cap);
+            }
         }
         elem[internalSize] = val;
         internalSize++;
