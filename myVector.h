@@ -6,18 +6,16 @@
 #include<initializer_list>
 #include<stdexcept>
 #include<limits>
+#include<string>
 
 // Todo:
-// compile ASAN, UBSAN, TSAN
-// create << operator
-// implement all iterators functions
-// implement emplace_back
+
 // medir velocidade (google benchmark) conta vector e list
+
+// compile ASAN, UBSAN, TSAN
 
 // Read about memmory locallity
 // Read about comparison of vector and list
-
-
 
 //#################################
 //######### Declarations ##########
@@ -82,9 +80,9 @@ namespace myClasses{
         myVector(const myVector& x);
         myVector(int n, const T& val);
         myVector(std::initializer_list<T> list);
-        //Destructor
+        //Destructor - OK
         ~myVector(){delete[] elem;}
-        //Operator =
+        //Operator = OK
         //copy
         myVector& operator=(const myVector& x);
         //move
@@ -126,8 +124,10 @@ namespace myClasses{
         iterator erase(iterator position);
         void swap(myVector& x);
         void clear() noexcept;
-        //emplace
-        //emplace_back
+        template <class... Args>
+        iterator emplace(iterator position, Args&&... args);
+        template <class... Args>
+        void emplace_back(Args&&... args);
     };
 
     //################################
@@ -431,6 +431,53 @@ namespace myClasses{
     template <typename T>
     void myVector<T>::clear() noexcept{
         internalSize = 0;
+    }
+
+    template <typename T>
+    template <class... Args>
+    typename myVector<T>::iterator myVector<T>::emplace(myVector<T>::iterator position, Args&&... args){
+        //check sizes
+        if(internalSize >= maxSize){
+            throw std::overflow_error("Requested memmory larger than max supported");
+        }
+        //reserve
+        if(internalSize >= cap){
+            if(2*cap >= maxSize)
+            {
+                reserve(maxSize);
+            }
+            else
+            {
+                reserve(2*cap);
+            }
+        }
+        //Copy current values to end
+        iterator from = end();
+        int i = internalSize + 1;
+        while(from != position){
+            from--;
+            i--;
+            elem[i] = *from;
+        }
+        internalSize = internalSize + 1;
+        //insert new value
+        *position = T(args...);
+    }
+    
+    template <typename T>
+    template <class... Args>
+    void myVector<T>::emplace_back(Args&&... args){
+        emplace(end(), args...);
+    }
+
+    //Operator << outside class
+    template <typename T>
+    std::ostream& operator<<(std::ostream& os, const myVector<T>& obj){
+        std::string out;
+        for(auto i=0;i<obj.size();i++){
+            out.append(std::to_string(obj[i])+" ");
+        }
+        return os << out;
     }
 }
 #endif

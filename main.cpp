@@ -153,6 +153,23 @@ int main(){
     J.erase(J.begin()+2);
     Je.erase(Je.begin()+2);
     cout << compareVector(Je, J) << "\n";
+    cout << "EMPLACE\n";
+    J.emplace(J.begin()+2,999);
+    Je.emplace(Je.begin()+2,999);
+    cout << compareVector(Je, J) << "\n";
+    J.emplace_back(333);
+    Je.emplace_back(333);
+    cout << compareVector(Je, J) << "\n";
+
+    //Test operator <<
+    cout << J << "\n";
+
+    //Test begin and end
+    for(auto x : J){
+        cout << x << " ";
+    }
+    cout << "\n";
+
 
     return 0;
 }
