@@ -9,10 +9,15 @@
 
 // Todo:
 // compile ASAN, UBSAN, TSAN
-// create << operator (?)
-// iterator: tirar num usar ponteiro (?)
+// create << operator
 // implement all iterators functions
-// implement modifiers functions
+// implement emplace_back
+// medir velocidade (google benchmark) conta vector e list
+
+// Read about memmory locallity
+// Read about comparison of vector and list
+
+
 
 //#################################
 //######### Declarations ##########
@@ -40,27 +45,37 @@ namespace myClasses{
             //iterator member
             private:
                 long num {0};   //store index of vector
-                T* elemRef {nullptr}; //pointer to myvector elem
+                myVector* elemRef {nullptr}; //pointer to myvector elem
             //iterator functions
             public:
-                explicit iterator(long _num, T* _elemRef){
+                explicit iterator(){};
+                explicit iterator(long _num, myVector* _elemRef){
                     num = _num;
                     elemRef = _elemRef;
                 }
                 iterator& operator++() {num = num + 1; return *this;}
                 iterator operator++(int) {iterator retval(*this); ++(*this); return retval;}
+                iterator& operator--() {num = num - 1; return *this;}
+                iterator operator--(int) {iterator retval(*this); --(*this); return retval;}
+                iterator operator+(int x) {return iterator(num+x, elemRef);}
                 bool operator==(iterator other) const {
                     return (num == other.num)&&(elemRef==other.elemRef);
-                    }
+                }
                 bool operator!=(iterator other) const {return !(*this == other);}
-                T operator*() {return elemRef[num];}
+                T& operator*() {return elemRef->elem[num];}
+                iterator& operator=(const iterator& x){
+                    num = x.num;
+                    elemRef = x.elemRef;
+                }
         };
 
         //Iterators - OK
-        iterator begin() {return iterator(0, elem);}
-        const iterator begin() const{return iterator(0, elem);}
-        iterator end() {return iterator(internalSize, elem);}
-        const iterator end() const{return iterator(internalSize, elem);}
+        iterator begin() {return iterator(0, this);}
+        const iterator begin() const{return iterator(0, this);}
+        iterator end() {return iterator(internalSize, this);}
+        const iterator end() const{return iterator(internalSize, this);}
+        iterator it_at(int idx) {return iterator(idx, this);}
+        const iterator it_at(int idx) const{return iterator(idx, this);}
         
         //Constructors - OK
         myVector();
@@ -99,8 +114,20 @@ namespace myClasses{
         const T* data() const{return elem;}
 
         //Modifiers
+        void assign(iterator first, iterator last);
+        void assign(int n, const T& val);
+        void assign(std::initializer_list<T> list);
         void push_back(const T& val);
         void pop_back();
+        iterator insert(iterator position, iterator first, iterator last);
+        iterator insert(iterator position, const T& val);
+        iterator insert(iterator position, std::initializer_list<T> list);
+        iterator erase(iterator first, iterator last);
+        iterator erase(iterator position);
+        void swap(myVector& x);
+        void clear() noexcept;
+        //emplace
+        //emplace_back
     };
 
     //################################
@@ -275,6 +302,135 @@ namespace myClasses{
         if(internalSize > 0){
             internalSize--;
         }
+    }
+
+    template <typename T>
+    void myVector<T>::swap(myVector& x){
+        std::swap(cap, x.cap);
+        std::swap(internalSize, x.internalSize);
+        std::swap(elem, x.elem);
+    }
+
+    template <typename T>
+    void myVector<T>::assign(iterator first, iterator last){
+        //count size
+        int n = 0;
+        iterator current = first;
+        while(current != last){
+            n++;
+            current++;
+        }
+        //assign
+        if(n > cap){
+            reserve(n);
+        }
+        internalSize = n;
+        current = first;
+        n = 0;
+        while(current != last){
+            elem[n] = *current;
+            current++;
+            n++;
+        }
+    }
+
+    template <typename T>
+    void myVector<T>::assign(int n, const T& val){
+        if(n > cap){
+            reserve(n);
+        }
+        internalSize = n;
+        for(auto i=0;i<internalSize;i++){
+            elem[i] = val;
+        }
+    }
+
+    template <typename T>
+    void myVector<T>::assign(std::initializer_list<T> list){
+        int n = list.size();
+        if(n > cap){
+            reserve(n);
+        }
+        internalSize = n;
+        int i=0;
+        for(auto x : list){
+            elem[i] = x;
+            i++;
+        }
+    }
+
+    template <typename T>
+    typename myVector<T>::iterator myVector<T>::insert(myVector<T>::iterator position, myVector<T>::iterator first, myVector<T>::iterator last){
+        //count size
+        int n = 0;
+        iterator current = first;
+        while(current != last){
+            n++;
+            current++;
+        }
+        //reserve
+        if(n + internalSize > cap){
+            reserve(n + internalSize);
+        }
+        //Copy current values to end
+        iterator from = end();
+        int i = internalSize + n;
+        while(from != position){
+            from--;
+            i--;
+            elem[i] = *from;
+        }
+        internalSize = internalSize + n;
+        //insert new values
+        current = first;
+        iterator toWrite = position;
+        for(int i=0;i<n;i++){
+            *toWrite = *current;
+            current++;
+            toWrite++;
+        }
+    }
+
+    template <typename T>
+    typename myVector<T>::iterator myVector<T>::insert(myVector<T>::iterator position, const T& val){
+        myVector<T> aux {val};
+        insert(position, aux.begin(), aux.end());
+    }
+
+    template <typename T>
+    typename myVector<T>::iterator myVector<T>::insert(myVector<T>::iterator position, std::initializer_list<T> list){
+        myVector<T> aux = list;
+        insert(position, aux.begin(), aux.end());
+    }
+
+    template <typename T>
+    typename myVector<T>::iterator myVector<T>::erase(myVector<T>::iterator first, myVector<T>::iterator last){
+        //count size
+        int n = 0;
+        iterator current = first;
+        while(current != last){
+            n++;
+            current++;
+        }
+        //Copy values overriding erased elements
+        iterator from = last;
+        iterator to = first;
+        while(from != end()){
+            *to = *from;
+            from++;
+            to++;
+        }
+        internalSize = internalSize - n;
+    }
+
+    template <typename T>
+    typename myVector<T>::iterator myVector<T>::erase(myVector<T>::iterator position){
+        erase(position, position+1);
+    }
+
+    template <typename T>
+    void myVector<T>::clear() noexcept{
+        internalSize = 0;
     }
 }
 #endif

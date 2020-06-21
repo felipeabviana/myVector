@@ -108,11 +108,51 @@ int main(){
     if(Empty.empty()==true){cout << "PASS\n";}
     else{cout << "FAIL\n";}
 
-    //Test functions
-
-
-    //__shrink_to_fit_aux
-
+    //Test modifiers
+    myVector<int> J {1,2,3};
+    myVector<int> K {9,8,7,6};
+    vector<int> Je {1,2,3};
+    vector<int> Ke {9,8,7,6};
+    J.swap(K);
+    Je.swap(Ke);
+    cout << "SWAP\n";
+    cout << compareVector(Je, J) << "\n";
+    cout << compareVector(Ke, K) << "\n";
+    J.assign(K.begin(),K.end());
+    Je.assign(Ke.begin(),Ke.end());
+    cout << "ASSIGN\n";
+    cout << compareVector(Je, J) << "\n";
+    J.assign({9,8,7,6,5,4,3,2,1,0});
+    Je.assign({9,8,7,6,5,4,3,2,1,0});
+    cout << compareVector(Je, J) << "\n";
+    J.assign(15,9);
+    Je.assign(15,9);
+    cout << compareVector(Je, J) << "\n";
+    cout << "Insert\n";
+    vector<int> Le {1,2,3};
+    myVector<int> L {1,2,3};
+    J.insert(J.begin(), L.begin(), L.end());
+    Je.insert(Je.begin(), Le.begin(), Le.end());
+    cout << compareVector(Je, J) << "\n";
+    J.insert(J.begin(), 7);
+    Je.insert(Je.begin(), 7);
+    cout << compareVector(Je, J) << "\n";
+    J.insert(J.begin(), {5,6,5});
+    Je.insert(Je.begin(), {5,6,5});
+    cout << compareVector(Je, J) << "\n";
+    Le.clear();
+    L.clear();
+    cout << "CLEAR\n";
+    cout << compareVector(Je, J) << "\n";
+    cout << "ERASE\n";
+    J.assign({9,8,7,6,5,4,3,2,1,0});
+    Je.assign({9,8,7,6,5,4,3,2,1,0});
+    J.erase(J.begin()+3,J.begin()+6);
+    Je.erase(Je.begin()+3, Je.begin()+6);
+    cout << compareVector(Je, J) << "\n";
+    J.erase(J.begin()+2);
+    Je.erase(Je.begin()+2);
+    cout << compareVector(Je, J) << "\n";
 
     return 0;
 }
